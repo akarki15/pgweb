@@ -128,6 +128,16 @@ func (client *Client) Databases() ([]string, error) {
 	return client.fetchRows(statements.PG_DATABASES)
 }
 
+func (client *Client) ConnectDatabase(database string) error {
+	newDB, err := sqlx.Connect(client.db.DriverName(), database)
+	fmt.Printf("ConnectDatabase: %+v", newDB)
+	if err != nil {
+		return fmt.Errorf("error connecting to database %s: %v", database, err)
+	}
+	client.db = newDB
+	return nil
+}
+
 func (client *Client) Schemas() ([]string, error) {
 	return client.fetchRows(statements.PG_SCHEMAS)
 }

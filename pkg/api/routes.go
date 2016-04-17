@@ -35,6 +35,7 @@ func SetupRoutes(router *gin.Engine) {
 		api.GET("/activity", GetActivity)
 		api.GET("/schemas", GetSchemas)
 		api.GET("/objects", GetObjects)
+		api.GET("/switchdb", SwitchDB)
 		api.GET("/tables/:table", GetTable)
 		api.GET("/tables/:table/rows", GetTableRows)
 		api.GET("/tables/:table/info", GetTableInfo)

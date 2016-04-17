@@ -128,7 +128,7 @@ func main() {
 	}
 
 	if !options.Debug {
-		gin.SetMode("release")
+		gin.SetMode("debug")
 	}
 
 	// Print memory usage every 30 seconds with debug flag
