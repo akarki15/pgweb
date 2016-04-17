@@ -154,31 +154,21 @@ func GetObjects(c *gin.Context) {
 	c.JSON(200, objects)
 }
 
-func SwitchDB(c *gin.Context) {
-	//	dbs, err := DbClient.Databases()
-	//	Logger.Printf("Active databases: %+v", dbs)
-	//	if err != nil {
-	//		c.JSON(500, NewError(fmt.Errorf("error getting databases: %v", err)))
-	//	}
-	paramDB := c.Request.FormValue("database")
-	if err := DbClient.ConnectDatabase(fmt.Sprintf("db=%s", url)); err != nil {
-		c.JSON(500, NewError(err))
-	}
+func SwitchDb(c *gin.Context) {
+	Logger.Printf("Opts : %+v", command.Opts)
 
-	r, _ := DbClient.Info()
-	Logger.Printf("DbClient.Info() : %+v", r)
-	if len(r.Rows) == 0 {
-		c.JSON(500, "DbClient is missing information required to setup pg connection")
+	newDb := c.Request.FormValue("database")
+	newConnUrl, err := connection.ReplaceDbName(DbClient.ConnectionString, newDb)
+	if err != nil {
+		c.JSON(400, fmt.Errorf("ReplaceDbName: %v", err))
 		return
 	}
-	c.Request.Form = url.Values{}
-	connFmt := "postgres://%s@%s:%d/%s?sslmode=%s"
-	c.Request.Form.Set("url", "postgres://:@localhost:5432/uni_app?sslmode=disable")
-	c.Request.Form.Set("url", fmt.Sprintf(connFmt, paramDB))
+
+	if c.Request.Form == nil {
+		c.Request.Form = url.Values{}
+	}
+	c.Request.Form.Set("url", newConnUrl)
 	Connect(c)
-	//	c.JSON(200, fmt.Sprintf("\n %+v \n input db: %s \n", DbClient, url))
-	c.JSON(200, "ok")
-	return
 }
 
 func RunQuery(c *gin.Context) {
