@@ -161,6 +161,15 @@ function loadSchemas() {
   });
 }
 
+function switchDB(){
+	var params = {
+		database: "uni_app"
+	}
+   apiCall("get", "/switchdb", params, function(resp){
+	window.location.reload();	
+   }); 
+}
+
 function escapeHtml(str) {
   if (str != null || str != undefined) {
     return jQuery("<div/>").text(str).html();
@@ -800,6 +809,10 @@ $(document).ready(function() {
 
   $("#refresh_tables").on("click", function() {
     loadSchemas();
+  });
+
+  $("#current_database").on("click", function() {
+    switchDB();
   });
 
   $("#rows_filter").on("submit", function(e) {
