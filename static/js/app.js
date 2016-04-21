@@ -94,6 +94,7 @@ function getBookmarks(cb)                   { apiCall("get", "/bookmarks", {}, c
 function executeQuery(query, cb)            { apiCall("post", "/query", { query: query }, cb); }
 function explainQuery(query, cb)            { apiCall("post", "/explain", { query: query }, cb); }
 function disconnect(cb)                     { apiCall("post", "/disconnect", {}, cb); }
+function getDatabases(cb)                     { apiCall("get", "/databases", {}, cb); }
 
 function encodeQuery(query) {
   return window.btoa(query).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ".");
@@ -158,6 +159,17 @@ function loadSchemas() {
     }
 
     bindContextMenus();
+  });
+}
+
+function loadTables(){
+  $("#all_databases").html("");
+
+  getDatabases(function(data){
+    for(var db of data){
+      $("<div>"+db+"</div>").appendTo($("#all_databases"));
+    }
+    console.log(data);
   });
 }
 
@@ -811,8 +823,12 @@ $(document).ready(function() {
     loadSchemas();
   });
 
-  $("#current_database").on("click", function() {
-    switchDB();
+  $("#database_chooser").on("click", function() {
+    loadTables();
+  });
+
+  $("#database_item").on("click", function(){
+    switchDB; 
   });
 
   $("#rows_filter").on("submit", function(e) {
