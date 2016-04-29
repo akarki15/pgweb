@@ -162,20 +162,22 @@ function loadSchemas() {
   });
 }
 
-function loadTables(){
-  $("#all_databases").html("");
+//function loadTables(){
+//  return getDatabases(function(data){
+//    var dbList = "";
+//    for(var db of data){
+//      dbList +="<div class='switch_db'>"+db+"</div>"
+//    }
+//    console.log(data);
+//    return dbList
+////      $(dbList).appendTo($("#all_databases"));
+//  });
+//}
 
-  getDatabases(function(data){
-    for(var db of data){
-      $("<div>"+db+"</div>").appendTo($("#all_databases"));
-    }
-    console.log(data);
-  });
-}
-
-function switchDB(){
+function switchDB(db){
+	console.log(db);
 	var params = {
-		database: "uni_app"
+		database: db 
 	}
    apiCall("get", "/switchdb", params, function(resp){
 	window.location.reload();	
@@ -279,7 +281,13 @@ function buildTable(results, sortColumn, sortOrder) {
 
   results.rows.forEach(function(row) {
     var r = "";
-    for (i in row) { r += "<td><div>" + escapeHtml(row[i]) + "</div></td>"; }
+    for (i in row) { 
+	    if (row[0]== 'current_database' && i!=0){
+	    	console.log("Damn son: "+row[i]);
+	    }
+	    console.log("row["+i+"] : "+row[i]);
+	    r += "<td><div>" + escapeHtml(row[i]) + "</div></td>"; 
+    }
     rows += "<tr>" + r + "</tr>";
   });
 
@@ -476,6 +484,7 @@ function showConnectionPanel() {
       rows.push([key, data[key]]);
     }
 
+
     buildTable({
       columns: ["attribute", "value"],
       rows: rows
@@ -483,6 +492,16 @@ function showConnectionPanel() {
 
     $("#input").hide();
     $("#body").addClass("full");
+    getDatabases(function(data){
+      var dbList = "";
+      for(var db of data){
+        dbList +="<div id='database_chooser'>"+db+"</div>"
+      }
+
+$("#databases").
+    text("");
+      $(dbList).appendTo($("#databases"));
+    });
   });
 }
 
@@ -827,8 +846,9 @@ $(document).ready(function() {
     loadTables();
   });
 
-  $("#database_item").on("click", function(){
-    switchDB; 
+  $(".switch-db").on("click", function(){
+   console.log("WOW");
+    switchDB(this); 
   });
 
   $("#rows_filter").on("submit", function(e) {
