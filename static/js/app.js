@@ -169,19 +169,19 @@ function loadSchemas() {
 //      dbList +="<div class='switch_db'>"+db+"</div>"
 //    }
 //    console.log(data);
+//    $(dbList).appendTo($("#all_databases"));
 //    return dbList
-////      $(dbList).appendTo($("#all_databases"));
 //  });
 //}
 
 function switchDB(db){
 	console.log(db);
 	var params = {
-		database: db 
+		database: db
 	}
    apiCall("get", "/switchdb", params, function(resp){
-	window.location.reload();	
-   }); 
+	window.location.reload();
+   });
 }
 
 function escapeHtml(str) {
@@ -286,7 +286,7 @@ function buildTable(results, sortColumn, sortOrder) {
 	    	console.log("Damn son: "+row[i]);
 	    }
 	    console.log("row["+i+"] : "+row[i]);
-	    r += "<td><div>" + escapeHtml(row[i]) + "</div></td>"; 
+	    r += "<td><div>" + row[i] + "</div></td>"; 
     }
     rows += "<tr>" + r + "</tr>";
   });
@@ -495,12 +495,12 @@ function showConnectionPanel() {
     getDatabases(function(data){
       var dbList = "";
       for(var db of data){
-        dbList +="<div id='database_chooser'>"+db+"</div>"
+        dbList +="<div id='switch-db'>"+db+"</div>"
       }
 
 $("#databases").
     text("");
-      $(dbList).appendTo($("#databases"));
+    $(dbList).appendTo($("#databases"));
     });
   });
 }
@@ -846,7 +846,7 @@ $(document).ready(function() {
     loadTables();
   });
 
-  $(".switch-db").on("click", function(){
+  $("#switch-db").on("click", function(){
    console.log("WOW");
     switchDB(this); 
   });

@@ -156,7 +156,6 @@ func GetObjects(c *gin.Context) {
 
 func SwitchDb(c *gin.Context) {
 	Logger.Printf("Opts : %+v", command.Opts)
-
 	newDb := c.Request.FormValue("database")
 	newConnUrl, err := connection.ReplaceDbName(DbClient.ConnectionString, newDb)
 	if err != nil {
