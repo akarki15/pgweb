@@ -175,12 +175,12 @@ function loadSchemas() {
 //}
 
 function switchDB(db){
-	console.log(db);
 	var params = {
 		database: db
 	}
+	console.log("trying to switch to : ",db);
    apiCall("get", "/switchdb", params, function(resp){
-	window.location.reload();
+        window.location.reload();
    });
 }
 
@@ -495,7 +495,7 @@ function showConnectionPanel() {
     getDatabases(function(data){
       var dbList = "";
       for(var db of data){
-        dbList +="<div id='switch-db'>"+db+"</div>"
+        dbList +="<div class='switch-db'>"+db+"</div>"
       }
 
 $("#databases").
@@ -842,13 +842,9 @@ $(document).ready(function() {
     loadSchemas();
   });
 
-  $("#database_chooser").on("click", function() {
-    loadTables();
-  });
-
-  $("#switch-db").on("click", function(){
-   console.log("WOW");
-    switchDB(this); 
+  $(document).on("click","#databases>.switch-db", function(){
+    console.log("WOW", this.textContent); 
+    switchDB(this.textContent); 
   });
 
   $("#rows_filter").on("submit", function(e) {
