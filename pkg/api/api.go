@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -144,6 +145,21 @@ func GetObjects(c *gin.Context) {
 
 	objects := client.ObjectsFromResult(result)
 	c.JSON(200, objects)
+}
+
+func SwitchDB(c *gin.Context) {
+	newDb := c.Request.FormValue("database")
+	newConnUrl, err := connection.ReplaceDbName(DbClient.ConnectionString, newDb)
+	if err != nil {
+		c.JSON(400, fmt.Errorf("ReplaceDbName: %v", err))
+		return
+	}
+
+	if c.Request.Form == nil {
+		c.Request.Form = url.Values{}
+	}
+	c.Request.Form.Set("url", newConnUrl)
+	Connect(c)
 }
 
 func RunQuery(c *gin.Context) {

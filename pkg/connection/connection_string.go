@@ -99,3 +99,18 @@ func BuildString(opts command.Options) (string, error) {
 
 	return url, nil
 }
+
+func ReplaceDbName(connStr, db string) (string, error) {
+	if strings.Count(connStr, "/") != 3 {
+		return "", fmt.Errorf("%s is not a legal postgres url", connStr)
+	}
+
+	lastIndex := strings.LastIndex(connStr, "/")
+	newConnStr := fmt.Sprintf("%s%s", connStr[:lastIndex+1], db)
+
+	if sslIndex := strings.Index(connStr, "?"); sslIndex != -1 {
+		newConnStr = fmt.Sprintf("%s%s", newConnStr, connStr[sslIndex:])
+	}
+
+	return newConnStr, nil
+}

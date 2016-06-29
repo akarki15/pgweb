@@ -164,3 +164,22 @@ func Test_Blank(t *testing.T) {
 	assert.Equal(t, false, IsBlank(command.Options{Host: "host", User: "user", DbName: "db"}))
 	assert.Equal(t, false, IsBlank(command.Options{Url: "url"}))
 }
+
+func Test_ReplaceDbName(t *testing.T) {
+	urlFmt := "postgres://password@host:5432/%s"
+	urlWithSSLFmt := "postgres://password@host:5432/%s?sslmode=require"
+
+	testCases := map[string]string{
+		fmt.Sprintf(urlFmt, "oldDB"):        fmt.Sprintf(urlFmt, "newDB"),
+		fmt.Sprintf(urlWithSSLFmt, "oldDB"): fmt.Sprintf(urlWithSSLFmt, "newDB"),
+	}
+
+	for input, exp := range testCases {
+		url, err := ReplaceDbName(input, "newDB")
+		assert.NoError(t, err)
+		assert.Equal(t, exp, url)
+	}
+
+	_, err := ReplaceDbName(urlFmt[:28], "newDB")
+	assert.Error(t, err)
+}

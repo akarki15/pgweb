@@ -35,7 +35,7 @@ func getVar(name, def string) string {
 	return val
 }
 
-func initVars() {
+func initVars(t *testing.T) {
 	serverHost = getVar("PGHOST", "localhost")
 	serverPort = getVar("PGPORT", "5432")
 	serverUser = getVar("PGUSER", "postgres")
@@ -327,7 +327,7 @@ func TestAll(t *testing.T) {
 		return
 	}
 
-	initVars()
+	initVars(t)
 	setupCommands()
 	teardown()
 	setup()

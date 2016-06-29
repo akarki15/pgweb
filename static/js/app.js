@@ -94,6 +94,7 @@ function getBookmarks(cb)                   { apiCall("get", "/bookmarks", {}, c
 function executeQuery(query, cb)            { apiCall("post", "/query", { query: query }, cb); }
 function explainQuery(query, cb)            { apiCall("post", "/explain", { query: query }, cb); }
 function disconnect(cb)                     { apiCall("post", "/disconnect", {}, cb); }
+function getDatabases(cb)                   { apiCall("get", "/databases", {}, cb); }
 
 function encodeQuery(query) {
   return window.btoa(query).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ".");
@@ -159,6 +160,15 @@ function loadSchemas() {
 
     bindContextMenus();
   });
+}
+
+function switchDB(db){
+    var params = {
+        database: db
+    }
+    apiCall("get", "/switchdb", params, function(resp){
+        window.location.reload();
+    });
 }
 
 function escapeHtml(str) {
@@ -258,7 +268,13 @@ function buildTable(results, sortColumn, sortOrder) {
 
   results.rows.forEach(function(row) {
     var r = "";
-    for (i in row) { r += "<td><div>" + escapeHtml(row[i]) + "</div></td>"; }
+    for (i in row) { 
+	    if (row[0]== 'current_database' && i!=0){
+	    	console.log("Damn son: "+row[i]);
+	    }
+	    console.log("row["+i+"] : "+row[i]);
+	    r += "<td><div>" + row[i] + "</div></td>"; 
+    }
     rows += "<tr>" + r + "</tr>";
   });
 
@@ -455,6 +471,7 @@ function showConnectionPanel() {
       rows.push([key, data[key]]);
     }
 
+
     buildTable({
       columns: ["attribute", "value"],
       rows: rows
@@ -462,6 +479,16 @@ function showConnectionPanel() {
 
     $("#input").hide();
     $("#body").addClass("full");
+    getDatabases(function(data){
+      var dbList = "";
+      for(var db of data){
+        dbList +="<div class='switch-db'>"+db+"</div>"
+      }
+
+$("#databases").
+    text("");
+    $(dbList).appendTo($("#databases"));
+    });
   });
 }
 
@@ -800,6 +827,10 @@ $(document).ready(function() {
 
   $("#refresh_tables").on("click", function() {
     loadSchemas();
+  });
+
+  $(document).on("click","#databases>.switch-db", function(){
+    switchDB(this.textContent);
   });
 
   $("#rows_filter").on("submit", function(e) {
