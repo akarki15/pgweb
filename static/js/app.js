@@ -158,6 +158,20 @@ function loadSchemas() {
       $(".schema").addClass("expanded");
     }
 
+  getDatabases(function(data){
+	if (data.length == 0) return;
+    var dbList = "";
+	dbList+="<div class='schema expanded>"
+    dbList+= "<div class='schema-group-title'><i class='fa fa-chevron-right'></i><i class='fa fa-chevron-down'></i> Databases (" + data.length + ")</div>";
+    dbList+= "<ul>"
+
+    for (item of data) {
+      var id = "database." + item;
+      dbList+= "<li class='schema-database switch-db' data-id='" + id + "'>"+ "&nbsp;" + item + "</li>";
+    }
+    dbList+= "</ul></div>";
+    $(dbList).appendTo("#databases");
+  });
     bindContextMenus();
   });
 }
@@ -829,7 +843,7 @@ $(document).ready(function() {
     loadSchemas();
   });
 
-  $(document).on("click","#databases>.switch-db", function(){
+  $(document).on("click","#objects>.switch-db", function(){
     switchDB(this.textContent);
   });
 
