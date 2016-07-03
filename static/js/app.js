@@ -161,15 +161,20 @@ function loadSchemas() {
   getDatabases(function(data){
 	if (data.length == 0) return;
     var dbList = "";
-	dbList+="<div class='schema expanded>"
+	dbList+="<div class='schema expanded'>"
+    dbList+= "<div class='schema-name'><i class='fa fa-folder-o'></i><i class='fa fa-folder-open-o'></i> " + "Dat base"+ "</div>";
+    dbList+= "<div class='schema-container'>";
+    dbList+= "<div class='schema-group " + group_klass + "'>";
     dbList+= "<div class='schema-group-title'><i class='fa fa-chevron-right'></i><i class='fa fa-chevron-down'></i> Databases (" + data.length + ")</div>";
     dbList+= "<ul>"
+    var icon = '<i class="fa fa-circle-o"></i>'
 
     for (item of data) {
       var id = "database." + item;
-      dbList+= "<li class='schema-database switch-db' data-id='" + id + "'>"+ "&nbsp;" + item + "</li>";
+      dbList+= "<li class='schema-database switch-db' data-id='" + id + "'>"+ icon + "&nbsp;" + item + "</li>";
     }
     dbList+= "</ul></div>";
+	dbList+= "</div></div>";
     $(dbList).appendTo("#databases");
   });
     bindContextMenus();
@@ -779,6 +784,10 @@ $(document).ready(function() {
   });
 
   $("#objects").on("click", ".schema-group-title", function(e) {
+    $(this).parent().toggleClass("expanded");
+  });
+
+  $("#databases").on("click", ".schema-group-title", function(e) {
     $(this).parent().toggleClass("expanded");
   });
 
