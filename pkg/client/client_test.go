@@ -162,7 +162,7 @@ func test_Databases(t *testing.T) {
 
 func test_Objects(t *testing.T) {
 	res, err := testClient.Objects()
-	objects := ObjectsFromResult(res)
+	objects := ObjectsFromResult(res, map[string][]string{})
 
 	tables := []string{
 		"alternate_stock",

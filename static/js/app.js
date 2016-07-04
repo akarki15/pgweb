@@ -104,6 +104,7 @@ function buildSchemaSection(name, objects) {
   var section = "";
 
   var titles = {
+    "database":          "Databases",
     "table":             "Tables",
     "view":              "Views",
     "materialized_view": "Materialized Views",
@@ -111,6 +112,7 @@ function buildSchemaSection(name, objects) {
   };
 
   var icons = {
+    "database":          '<i class="fa fa-table"></i>',
     "table":             '<i class="fa fa-table"></i>',
     "view":              '<i class="fa fa-table"></i>',
     "materialized_view": '<i class="fa fa-table"></i>',
@@ -124,7 +126,7 @@ function buildSchemaSection(name, objects) {
   section += "<div class='schema-name'><i class='fa fa-folder-o'></i><i class='fa fa-folder-open-o'></i> " + name + "</div>";
   section += "<div class='schema-container'>";
 
-  for (group of ["table", "view", "materialized_view", "sequence"]) {
+  for (group of ["database", "table", "view", "materialized_view", "sequence"]) {
     if (objects[group].length == 0) continue;
 
     group_klass = "";
@@ -158,25 +160,6 @@ function loadSchemas() {
       $(".schema").addClass("expanded");
     }
 
-  getDatabases(function(data){
-	if (data.length == 0) return;
-    var dbList = "";
-	dbList+="<div class='schema expanded'>"
-    dbList+= "<div class='schema-name'><i class='fa fa-folder-o'></i><i class='fa fa-folder-open-o'></i> " + "Dat base"+ "</div>";
-    dbList+= "<div class='schema-container'>";
-    dbList+= "<div class='schema-group " + group_klass + "'>";
-    dbList+= "<div class='schema-group-title'><i class='fa fa-chevron-right'></i><i class='fa fa-chevron-down'></i> Databases (" + data.length + ")</div>";
-    dbList+= "<ul>"
-    var icon = '<i class="fa fa-circle-o"></i>'
-
-    for (item of data) {
-      var id = "database." + item;
-      dbList+= "<li class='schema-database switch-db' data-id='" + id + "'>"+ icon + "&nbsp;" + item + "</li>";
-    }
-    dbList+= "</ul></div>";
-	dbList+= "</div></div>";
-    $(dbList).appendTo("#databases");
-  });
     bindContextMenus();
   });
 }
@@ -185,9 +168,11 @@ function switchDB(db){
     var params = {
         database: db
     }
-    apiCall("get", "/switchdb", params, function(resp){
-        window.location.reload();
+    apiCall("post", "/switchdb", params, function(resp){
+		loadSchemas();
+        //window.location.reload();
     });
+	console.log("post: /switchdb:", params);
 }
 
 function escapeHtml(str) {
@@ -498,16 +483,6 @@ function showConnectionPanel() {
 
     $("#input").hide();
     $("#body").addClass("full");
-    getDatabases(function(data){
-      var dbList = "";
-      for(var db of data){
-        dbList +="<div class='switch-db'>"+db+"</div>"
-      }
-
-$("#databases").
-    text("");
-    $(dbList).appendTo($("#databases"));
-    });
   });
 }
 
@@ -796,6 +771,18 @@ $(document).ready(function() {
   });
 
   $("#objects").on("click", "li", function(e) {
+	console.log('bam!');
+	console.log("bam",$(this).data("type"));
+	if ($(this).data("type") == "database"){
+		console.log("bam!");
+		var db = $(this).data("id").split(".");
+		var name = db[0];
+		if (db.length > 1) {
+			name = db[1]
+		}
+        switchDB(name);
+	    return;
+    }
     currentObject = {
       name: $(this).data("id"),
       type: $(this).data("type")

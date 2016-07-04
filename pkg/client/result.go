@@ -25,6 +25,7 @@ type Result struct {
 }
 
 type Objects struct {
+	Databases         []string `json:"database"`
 	Tables            []string `json:"table"`
 	Views             []string `json:"view"`
 	MaterializedViews []string `json:"materialized_view"`
@@ -106,7 +107,7 @@ func (res *Result) JSON() []byte {
 	return data
 }
 
-func ObjectsFromResult(res *Result) map[string]*Objects {
+func ObjectsFromResult(res *Result, dbBySchema map[string][]string) map[string]*Objects {
 	objects := map[string]*Objects{}
 
 	for _, row := range res.Rows {
@@ -116,6 +117,7 @@ func ObjectsFromResult(res *Result) map[string]*Objects {
 
 		if objects[schema] == nil {
 			objects[schema] = &Objects{
+				Databases:         []string{},
 				Tables:            []string{},
 				Views:             []string{},
 				MaterializedViews: []string{},
@@ -132,6 +134,11 @@ func ObjectsFromResult(res *Result) map[string]*Objects {
 			objects[schema].MaterializedViews = append(objects[schema].MaterializedViews, name)
 		case "sequence":
 			objects[schema].Sequences = append(objects[schema].Sequences, name)
+		}
+	}
+	for k, v := range dbBySchema {
+		if _, ok := objects[k]; ok {
+			objects[k].Databases = v
 		}
 	}
 

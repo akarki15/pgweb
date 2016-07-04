@@ -4,7 +4,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"log"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -136,14 +138,33 @@ func GetDatabases(c *gin.Context) {
 	serveResult(names, err, c)
 }
 
+func dbBySchema(db []string) map[string][]string {
+	result := map[string][]string{"public": {}}
+	for _, name := range db {
+		schema := strings.Split(name, ".")
+		if len(schema) == 1 {
+			result["public"] = append(result["public"], schema[0])
+		} else {
+			result[schema[0]] = append(result[schema[0]], schema[1])
+		}
+	}
+	return result
+}
+
 func GetObjects(c *gin.Context) {
 	result, err := DB(c).Objects()
 	if err != nil {
 		c.JSON(400, NewError(err))
 		return
 	}
-
-	objects := client.ObjectsFromResult(result)
+	log.Printf("Aashish: context:  %+v", c)
+	log.Printf("Aashish: objects:  %+v", result)
+	db, err := DB(c).Databases()
+	if err != nil {
+		c.JSON(400, NewError(err))
+		return
+	}
+	objects := client.ObjectsFromResult(result, dbBySchema(db))
 	c.JSON(200, objects)
 }
 
