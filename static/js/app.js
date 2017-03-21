@@ -124,14 +124,14 @@ function buildSchemaSection(name, objects) {
   section += "<div class='schema-container'>";
 
   for (group of ["table", "view", "materialized_view", "sequence"]) {
-    if (objects[group].length == 0) continue;
-
     group_klass = "";
     if (name == "public" && group == "table") group_klass = "expanded";
 
     section += "<div class='schema-group " + group_klass + "'>";
     section += "<div class='schema-group-title'><i class='fa fa-chevron-right'></i><i class='fa fa-chevron-down'></i> " + titles[group] + " (" + objects[group].length + ")</div>";
     section += "<ul>"
+
+    if (!objects[group]) continue;
 
     for (item of objects[group]) {
       var id = name + "." + item;
@@ -149,6 +149,15 @@ function loadSchemas() {
   $("#objects").html("");
 
   getObjects(function(data) {
+    if (Object.keys(data).length == 0) {
+      data["public"] = {
+        table: [],
+        view: [],
+        materialized_view: [],
+        sequence: []
+      };
+    }
+
     for (schema in data) {
       $(buildSchemaSection(schema, data[schema])).appendTo("#objects");
     }
@@ -294,6 +303,9 @@ function buildTable(results, sortColumn, sortOrder, options) {
   });
 
   $("<thead>" + cols + "</thead><tbody>" + rows + "</tobdy>").appendTo("#results");
+
+  // Show number of rows rendered on the page
+  $("#result-rows-count").html(results.rows.length + " rows");
 }
 
 function setCurrentTab(id) {
@@ -477,6 +489,10 @@ function showTableStructure() {
 }
 
 function showQueryPanel() {
+  if (!$("#table_query").hasClass("selected")) {
+    resetTable();
+  }
+
   setCurrentTab("table_query");
   editor.focus();
 

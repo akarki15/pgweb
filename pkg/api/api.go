@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	neturl "net/url"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -147,9 +146,9 @@ func SwitchDb(c *gin.Context) {
 		return
 	}
 
-	newStr := strings.Replace(conn.ConnectionString, currentUrl.Path, "/"+name, 1)
+	currentUrl.Path = name
 
-	cl, err := client.NewFromUrl(newStr, nil)
+	cl, err := client.NewFromUrl(currentUrl.String(), nil)
 	if err != nil {
 		c.JSON(400, Error{err.Error()})
 		return
@@ -377,7 +376,7 @@ func HandleQuery(query string, c *gin.Context) {
 	case "csv":
 		c.Data(200, "text/csv", result.CSV())
 	case "json":
-		c.Data(200, "applicaiton/json", result.JSON())
+		c.Data(200, "application/json", result.JSON())
 	case "xml":
 		c.XML(200, result)
 	default:
@@ -386,7 +385,7 @@ func HandleQuery(query string, c *gin.Context) {
 }
 
 func GetBookmarks(c *gin.Context) {
-	bookmarks, err := bookmarks.ReadAll(bookmarks.Path())
+	bookmarks, err := bookmarks.ReadAll(bookmarks.Path(command.Opts.BookmarksDir))
 	serveResult(bookmarks, err, c)
 }
 
